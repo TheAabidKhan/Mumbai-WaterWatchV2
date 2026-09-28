@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div style="padding: 40px; max-width: 900px; margin: 0 auto;">
+
+    <!-- Page Title -->
+    <div style="margin-bottom: 32px;">
+        <div style="font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">ML Prediction · Mumbai WaterWatch</div>
+        <h1 style="font-size: 28px; font-weight: 600; color: #0a1628; margin-bottom: 8px;">Run Water Shortage Prediction</h1>
+        <p style="color: #718096; font-size: 14px;">Enter current environmental conditions to get shortage severity, water availability, and reservoir forecast.</p>
+    </div>
+
+    <!-- Input Form -->
+    <form method="POST" action="/predict">
+        <div style="background: #fff; border-radius: 12px; border: 0.5px solid #e2e8f0; padding: 28px; margin-bottom: 24px;">
+            <div style="font-size: 13px; font-weight: 600; color: #0a1628; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;">Input Parameters</div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+
+                <div>
+                    <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Rainfall (mm)</label>
+                    <input type="number" name="rainfall" step="0.01" placeholder="e.g. 524.8"
+                        value="{{ request.form.get('rainfall', '') }}"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none;" required>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Temperature (°C)</label>
+                    <input type="number" name="temp" step="0.01" placeholder="e.g. 27.6"
+                        value="{{ request.form.get('temp', '') }}"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none;" required>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Humidity (%)</label>
+                    <input type="number" name="humidity" step="0.01" placeholder="e.g. 84.6"
+                        value="{{ request.form.get('humidity', '') }}"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none;" required>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Reservoir % (current)</label>
+                    <input type="number" name="reservoir" step="0.01" placeholder="e.g. 13.3"
+                        value="{{ request.form.get('reservoir', '') }}"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none;" required>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Consumption (MLD)</label>
+                    <input type="number" name="consumption" step="1" placeholder="e.g. 3975"
+                        value="{{ request.form.get('consumption', '') }}"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none;" required>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Month (1-12)</label>
+                    <input type="number" name="month" min="1" max="12" placeholder="e.g. 6"
+                        value="{{ request.form.get('month', '') }}"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none;" required>
+                </div>
+
+            </div>
+
+            <button type="submit"
+                style="margin-top:20px; padding:12px 32px; background:#0a1628; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer;">
+                Run Prediction →
+            </button>
+        </div>
+    </form>
+
+    <!-- Results -->
+    {% if prediction %}
+
+    <!-- Explanation note -->
+    <div style="font-size:11px; color:#718096; margin-bottom:16px; padding:12px 16px; background:#f8fafb; border-radius:8px; border:0.5px solid #e2e8f0;">
+        ℹ️ <strong>How to read this:</strong> Severity shows current shortage status based on today's reservoir level. Regression predicts where reservoir levels will be after the monsoon. ARIMA forecasts the full seasonal trend ahead.
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:24px;">
+
+        <!-- Classification Result -->
+        <div style="background:#fff; border-radius:12px; border:0.5px solid #e2e8f0; padding:24px;">
+            <div style="font-size:10px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">🌲 Random Forest · Classification</div>
+            <div style="font-size:11px; color:#718096; margin-bottom:6px;">Current Shortage Status</div>
+            <div style="font-size:28px; font-weight:600;
+                color: {% if prediction == 'Severe' %}#e74c3c{% elif prediction == 'Moderate' %}#f39c12{% else %}#27ae60{% endif %};">
+                {{ prediction }}
+            </div>
+            <div style="margin-top:10px; background:#f0f4f8; border-radius:4px; height:6px; overflow:hidden;">
+                <div style="height:100%; border-radius:4px;
+                    width:{% if prediction == 'Severe' %}90%{% elif prediction == 'Moderate' %}55%{% else %}20%{% endif %};
+                    background:{% if prediction == 'Severe' %}#e74c3c{% elif prediction == 'Moderate' %}#f39c12{% else %}#27ae60{% endif %};"></div>
+            </div>
+            <div style="font-size:10px; color:#718096; margin-top:6px;">Model accuracy: 97.44%</div>
+        </div>
+
+        <!-- Regression Result -->
+        <div style="background:#fff; border-radius:12px; border:0.5px solid #e2e8f0; padding:24px;">
+            <div style="font-size:10px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">📈 Random Forest · Regression</div>
+            <div style="font-size:11px; color:#718096; margin-bottom:6px;">Predicted Reservoir % (post-monsoon)</div>
+            <div style="font-size:28px; font-weight:600; color:#3498db;">{{ predicted_reservoir }}%</div>
+            <div style="margin-top:10px; background:#f0f4f8; border-radius:4px; height:6px; overflow:hidden;">
+                <div style="height:100%; border-radius:4px;
+                    width:{{ [predicted_reservoir, 100]|min }}%;
+                    background:#3498db;"></div>
+            </div>
+            <div style="font-size:10px; color:#718096; margin-top:6px;">R² Score: 0.9581</div>
+        </div>
+
+        <!-- ARIMA Result -->
+        <div style="background:#fff; border-radius:12px; border:0.5px solid #e2e8f0; padding:24px;">
+            <div style="font-size:10px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">🔮 ARIMA · Time Series</div>
+            <div style="font-size:11px; color:#718096; margin-bottom:6px;">Reservoir forecast — October</div>
+            <div style="font-size:28px; font-weight:600; color:#27ae60;">{{ reservoir_forecast[9] }}%</div>
+            <div style="margin-top:10px; background:#f0f4f8; border-radius:4px; height:6px; overflow:hidden;">
+                <div style="height:100%; border-radius:4px;
+                    width:{{ reservoir_forecast[9] }}%;
+                    background:#27ae60;"></div>
+            </div>
+            <div style="font-size:10px; color:#718096; margin-top:6px;">MAPE: 4.2%</div>
+        </div>
+
+    </div>
+
+    <!-- ARIMA 12 Month Forecast Table -->
+    <div style="background:#fff; border-radius:12px; border:0.5px solid #e2e8f0; padding:24px;">
+        <div style="font-size:13px; font-weight:600; color:#0a1628; margin-bottom:16px;">ARIMA 12-Month Reservoir Forecast</div>
+        <div style="display:grid; grid-template-columns:repeat(6,1fr); gap:10px;">
+            {% set months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] %}
+            {% for i in range(12) %}
+            <div style="text-align:center; padding:10px; background:#f8fafb; border-radius:8px; border:0.5px solid #e2e8f0;">
+                <div style="font-size:10px; color:#718096; margin-bottom:4px;">{{ months[i] }}</div>
+                <div style="font-size:14px; font-weight:600;
+                    color:{% if reservoir_forecast[i] < 20 %}#e74c3c{% elif reservoir_forecast[i] < 50 %}#f39c12{% else %}#27ae60{% endif %};">
+                    {{ reservoir_forecast[i] }}%
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

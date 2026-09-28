@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Mumbai WaterWatch</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #0d1b2a; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-box { background: #fff; border-radius: 16px; padding: 40px; width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .logo { text-align: center; margin-bottom: 28px; }
+        .logo h1 { font-size: 24px; color: #0d1b2a; font-weight: 600; }
+        .logo span { font-size: 13px; color: #718096; }
+        .logo .icon { font-size: 40px; margin-bottom: 8px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-size: 12px; color: #4a5568; font-weight: 500; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        input { width: 100%; padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #1a202c; outline: none; transition: border 0.2s; }
+        input:focus { border-color: #3498db; }
+        .btn { width: 100%; padding: 13px; background: #0d1b2a; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+        .btn:hover { background: #1a3a5c; }
+        .flash { background: #fde8e8; color: #c0392b; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+        .footer { text-align: center; margin-top: 20px; font-size: 11px; color: #a0aec0; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="logo">
+            <div class="icon">💧</div>
+            <h1>Mumbai WaterWatch</h1>
+            <span>Water Shortage Prediction System</span>
+        </div>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Enter username" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+        <div class="footer">Mumbai WaterWatch · B.Sc Data Science · Thakur College</div>
+    </div>
+</body>
+</html>

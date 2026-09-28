@@ -1,0 +1,11 @@
+flask
+scikit-learn
+pandas
+numpy
+joblib
+pmdarima
+flask-login
+werkzeug
+requests
+beautifulsoup4
+supabase

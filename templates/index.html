@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<div class="hero-banner">
+    <div class="hero-bg" style="background: linear-gradient(135deg, #0a1628 0%, #0a3d6b 40%, #0085CA 80%, #29B6F6 100%);"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-tag">Mumbai Metropolitan Region · Water Intelligence</div>
+        <h1 class="hero-title">
+            <a href="#">Mumbai WaterWatch — Predicting Shortage<br>Before It Happens ›</a>
+        </h1>
+        <p class="hero-subtitle">
+            <a href="#">ML-powered early warning system using reservoir levels, rainfall patterns, and climate data ›</a>
+        </p>
+    </div>
+</div>
+
+<!-- Status row -->
+<div class="status-row">
+    <div class="status-card">
+        <div class="status-card-label">Reservoir Level</div>
+        <div class="status-card-value">{{ reservoir }}<span class="status-card-unit"> %</span></div>
+        <div class="status-card-sub">Combined · 7 lakes</div>
+    </div>
+    <div class="status-card">
+        <div class="status-card-label">Rainfall (MTD)</div>
+        <div class="status-card-value">{{ rainfall }}<span class="status-card-unit"> mm</span></div>
+        <div class="status-card-sub">Month to date</div>
+    </div>
+    <div class="status-card">
+        <div class="status-card-label">Consumption</div>
+        <div class="status-card-value">{{ consumption_mld }}<span class="status-card-unit"> MLD</span></div>
+        <div class="status-card-sub">Per day · city-wide</div>
+    </div>
+    <div class="status-card">
+        <div class="status-card-label">Predicted Severity</div>
+        <div class="status-card-value" style="font-size:1.4rem;
+            color: {% if severity == 'Severe' %}#e74c3c{% elif severity == 'Moderate' %}#f39c12{% else %}#27ae60{% endif %};">
+            {{ severity }}
+        </div>
+        <div class="status-card-sub">ML Classification Model</div>
+    </div>
+</div>
+
+<!-- Explore section -->
+<div class="explore-section">
+    <div class="explore-label">Explore WaterWatch //</div>
+    <div class="explore-links">
+        <a href="/predict">Run a shortage severity prediction using current conditions</a>
+        <a href="/livelevels">Check live reservoir levels across Mumbai's 7 lakes</a>
+        <a href="/datadive">Explore 10 years of water shortage data and trends</a>
+    </div>
+    <a href="/about" class="explore-more">More about WaterWatch ›</a>
+</div>
+
+<!-- Card grid -->
+<div class="card-grid">
+    <div class="grid-card">
+        <div class="grid-card-img water">
+            <div class="grid-card-img-inner">Reservoir image</div>
+        </div>
+        <div class="grid-card-body">
+            <div class="grid-card-tag">Prediction · ML Model</div>
+            <div class="grid-card-title">
+                <a href="/predict">Run a water shortage forecast using our Random Forest classifier ›</a>
+            </div>
+        </div>
+    </div>
+    <div class="grid-card">
+        <div class="grid-card-img climate">
+            <div class="grid-card-img-inner">Rainfall image</div>
+        </div>
+        <div class="grid-card-body">
+            <div class="grid-card-tag">Climate · Monsoon Patterns</div>
+            <div class="grid-card-title">
+                <a href="/climate">How Mumbai's monsoon patterns affect water availability year-round ›</a>
+            </div>
+        </div>
+    </div>
+    <div class="grid-card">
+        <div class="grid-card-img reservoir">
+            <div class="grid-card-img-inner">Data image</div>
+        </div>
+        <div class="grid-card-body">
+            <div class="grid-card-tag">Data Dive · EDA</div>
+            <div class="grid-card-title">
+                <a href="/datadive">Explore historical reservoir, rainfall and shortage data from 2015–2025 ›</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

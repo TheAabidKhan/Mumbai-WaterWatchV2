@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div style="padding: 40px; max-width: 1100px; margin: 0 auto;">
+
+    <!-- Page Title -->
+    <div style="margin-bottom: 32px;">
+        <div style="font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Live Data · BMC Hydraulic Department</div>
+        <h1 style="font-size: 28px; font-weight: 600; color: #0a1628; margin-bottom: 8px;">Live Water Levels</h1>
+        <p style="color: #718096; font-size: 14px;">Real-time reservoir levels across Mumbai's 7 lakes. Data sourced from BMC Hydraulic Engineer's Department, Bhandup Complex.</p>
+        {% if last_updated %}
+        <div style="font-size:11px; color:#718096; margin-top:8px;">Last updated: {{ last_updated }}</div>
+        {% endif %}
+    </div>
+
+    {% if error %}
+    <div style="background:#fde8e8; color:#c0392b; padding:12px 16px; border-radius:8px; font-size:13px; margin-bottom:24px;">
+         {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- Combined Total Card -->
+    {% if combined %}
+    <div style="background: linear-gradient(135deg, #0a1628, #1a3a5c); border-radius: 12px; padding: 24px; margin-bottom: 24px; display:flex; align-items:center; justify-content:space-between;">
+        <div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Combined Storage · All 7 Lakes</div>
+            <div style="font-size:40px; font-weight:600; color:#fff;">{{ combined }}<span style="font-size:20px">%</span></div>
+            <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-top:4px;">Source: BMC Hydraulic Engineer's Department · Bhandup Complex</div>
+        </div>
+        <div style="font-size:60px;"></div>
+    </div>
+    {% endif %}
+
+    <!-- Individual Lake Cards -->
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px;">
+        {% for lake in lake_data %}
+        <div style="background:#fff; border-radius:12px; border:0.5px solid #e2e8f0; padding:20px;">
+            <div style="font-size:11px; color:#718096; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.3px;">{{ lake.name }}</div>
+            {% if lake.pct is not none %}
+            <div style="font-size:24px; font-weight:600;
+                color:{% if lake.pct < 20 %}#e74c3c{% elif lake.pct < 50 %}#f39c12{% else %}#27ae60{% endif %};">
+                {{ lake.pct }}%
+            </div>
+            <div style="margin-top:10px; background:#f0f4f8; border-radius:4px; height:6px; overflow:hidden;">
+                <div style="height:100%; border-radius:4px;
+                    width:{{ lake.pct }}%;
+                    background:{% if lake.pct < 20 %}#e74c3c{% elif lake.pct < 50 %}#f39c12{% else %}#27ae60{% endif %};"></div>
+            </div>
+            <div style="font-size:10px; color:#718096; margin-top:6px;">
+                {% if lake.pct < 20 %}🔴 Critical{% elif lake.pct < 50 %}🟡 Moderate{% else %}🟢 Healthy{% endif %}
+            </div>
+            {% else %}
+            <div style="font-size:14px; color:#718096;">— Data pending</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+        <!-- Info note -->
+    <div style="font-size:11px; color:#718096; padding:12px 16px; background:#f8fafb; border-radius:8px; border:0.5px solid #e2e8f0;">
+        Data sourced from the official <strong>BMC Hydraulic Engineer's Department</strong> daily bulletin, published at 6:00 AM each day from Bhandup Complex, Mumbai. Stored and served via Supabase database, updated daily.
+    </div>
+
+</div>
+
+{% endblock %}
