@@ -9,3 +9,4 @@ werkzeug
 requests
 beautifulsoup4
 supabase
+gunicorngunicorn
