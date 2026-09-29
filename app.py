@@ -18,8 +18,8 @@ model_arima = joblib.load(os.path.join(BASE, 'models', 'model_arima.pkl'))
 
 df = pd.read_csv(os.path.join(BASE, 'mumbai_master_dataset.csv'))
 
-SUPABASE_URL = "https://keslogxobehjuliuvrxk.supabase.co"
-SUPABASE_KEY = "sb_publishable_JTNmXo5RZQD4SU_Htyvg2Q_6BgzJE1v"
+SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://keslogxobehjuliuvrxk.supabase.co')
+SUPABASE_KEY = os.environ.get('SUPABASE_KEY', 'sb_publishable_JTNmXo5RZQD4SU_Htyvg2Q_6BgzJE1v')
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 USERS = {
@@ -75,10 +75,6 @@ def home():
 @app.route('/predict', methods=['GET', 'POST'])
 @login_required
 def predict():
-    prediction = None
-    reservoir_forecast = None
-    predicted_reservoir = None
-
     if request.method == 'POST':
         rainfall = float(request.form['rainfall'])
         temp = float(request.form['temp'])
@@ -96,20 +92,44 @@ def predict():
         forecast = model_arima.predict(n_periods=12)
         reservoir_forecast = [round(min(100, max(0, f)), 2) for f in forecast]
 
-    return render_template('predict.html',
-        prediction=prediction,
-        predicted_reservoir=predicted_reservoir,
-        reservoir_forecast=reservoir_forecast,
-        user=session.get('user'))
+        session['prediction'] = prediction
+        session['predicted_reservoir'] = predicted_reservoir
+        session['reservoir_forecast'] = reservoir_forecast
+        session['form_data'] = {
+            'rainfall': rainfall, 'temp': temp,
+            'humidity': humidity, 'reservoir': reservoir,
+            'consumption': consumption, 'month': month
+        }
+        return redirect(url_for('result'))
+
+    return render_template('predict.html', user=session.get('user'))
 
 @app.route('/result')
 @login_required
 def result():
-    return render_template('result.html', user=session.get('user'))
+    prediction = session.get('prediction')
+    predicted_reservoir = session.get('predicted_reservoir')
+    reservoir_forecast = session.get('reservoir_forecast')
+    form_data = session.get('form_data', {})
+
+    if not prediction:
+        return redirect(url_for('predict'))
+
+    return render_template('result.html',
+        prediction=prediction,
+        predicted_reservoir=predicted_reservoir,
+        reservoir_forecast=reservoir_forecast,
+        form_data=form_data,
+        user=session.get('user'))
 
 @app.route('/livelevels')
 @login_required
 def livelevels():
+    lake_data = []
+    combined = None
+    last_updated = None
+    error = None
+
     try:
         response = supabase.table('lake_levels').select('*').execute()
         rows = response.data
