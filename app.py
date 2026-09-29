@@ -56,13 +56,22 @@ def logout():
 @app.route('/')
 @login_required
 def home():
+    # Get live reservoir % from Supabase
+    try:
+        response = supabase.table('lake_levels').select('*').execute()
+        rows = response.data
+        reservoir = rows[0]['combined_pct'] if rows else 83.09
+    except:
+        reservoir = 83.09
+
+    # Rest from master dataset
     latest = df.iloc[-1]
-    reservoir = round(latest['reservoir_pct'], 2)
     rainfall = round(latest['rainfall_mm'], 2)
     temp = round(latest['avg_temp'], 2)
     humidity = round(latest['avg_humidity'], 2)
     severity = latest['shortage_severity']
     consumption_mld = int(latest['consumption_mld'])
+
     return render_template('index.html',
         reservoir=reservoir,
         rainfall=rainfall,
