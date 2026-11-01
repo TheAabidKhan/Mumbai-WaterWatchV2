@@ -1,26 +1,72 @@
 {% extends 'base.html' %}
-{% block content %}
-<div style="padding:40px; max-width:700px; margin:0 auto;">
-    <div style="font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Water Outlook · Mumbai WaterWatch</div>
-    <h1 style="font-size:28px; font-weight:600; color:#0a1628; margin-bottom:8px;">Will there be enough water?</h1>
-    <p style="color:#718096; font-size:14px; margin-bottom:24px;">Pick a month. We use today's lake levels and recent weather to estimate how full Mumbai's lakes will be.</p>
 
-    <div style="background:#f8fafb; border:0.5px solid #e2e8f0; border-radius:12px; padding:18px 20px; margin-bottom:20px;">
-        <div style="font-size:10px; color:#718096; text-transform:uppercase; letter-spacing:0.5px;">Lakes today (combined)</div>
-        <div style="font-size:30px; font-weight:600; color:#0a1628;">{{ live_reservoir }}%</div>
-        <div style="font-size:11px; color:#718096;">Updated: {{ updated }}</div>
+{% block content %}
+
+<div style="padding: 40px; max-width: 900px; margin: 0 auto;">
+
+    <div style="margin-bottom: 32px;">
+        <div style="font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">ML Prediction · Mumbai WaterWatch</div>
+        <h1 style="font-size: 28px; font-weight: 600; color: #0a1628; margin-bottom: 8px;">Run Water Shortage Prediction</h1>
+        <p style="color: #718096; font-size: 14px;">Enter current environmental conditions to get shortage severity, water availability, and reservoir forecast.</p>
     </div>
 
     <form method="POST" action="/predict">
-        <div style="background:#fff; border:0.5px solid #e2e8f0; border-radius:12px; padding:24px;">
-            <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Which month do you want to know about?</label>
-            <select name="horizon" required style="width:100%; padding:12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:15px;">
-                {% for o in options %}
-                <option value="{{ o.h }}">{{ o.label }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" style="margin-top:18px; padding:12px 32px; background:#0a1628; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer;">Show outlook →</button>
+        <div style="background: #fff; border-radius: 12px; border: 0.5px solid #e2e8f0; padding: 28px; margin-bottom: 24px;">
+            <div style="font-size: 13px; font-weight: 600; color: #0a1628; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px;">Input Parameters</div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+
+                <div>
+                    <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Rainfall (mm)</label>
+                    <input type="number" name="rainfall" step="0.01" placeholder="e.g. 524.8"
+                        value="{{ request.form.get('rainfall', '') }}"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none;" required>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Temperature (°C)</label>
+                    <input type="number" name="temp" step="0.01" placeholder="e.g. 27.6"
+                        value="{{ request.form.get('temp', '') }}"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none;" required>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Humidity (%)</label>
+                    <input type="number" name="humidity" step="0.01" placeholder="e.g. 84.6"
+                        value="{{ request.form.get('humidity', '') }}"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none;" required>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Reservoir % (current)</label>
+                    <input type="number" name="reservoir" step="0.01" placeholder="e.g. 13.3"
+                        value="{{ request.form.get('reservoir', '') }}"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none;" required>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Consumption (MLD)</label>
+                    <input type="number" name="consumption" step="1" placeholder="e.g. 3975"
+                        value="{{ request.form.get('consumption', '') }}"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none;" required>
+                </div>
+
+                <div>
+                    <label style="display:block; font-size:11px; color:#718096; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Month (1-12)</label>
+                    <input type="number" name="month" min="1" max="12" placeholder="e.g. 6"
+                        value="{{ request.form.get('month', '') }}"
+                        style="width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none;" required>
+                </div>
+
+            </div>
+
+            <button type="submit"
+                style="margin-top:20px; padding:12px 32px; background:#0a1628; color:#fff; border:none; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer;">
+                Run Prediction →
+            </button>
         </div>
     </form>
+
 </div>
+
 {% endblock %}
