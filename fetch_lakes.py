@@ -60,7 +60,7 @@ def fetch_and_save():
         if len(lake_data) < 4:
             raise Exception("Not enough lakes parsed")
 
-        print(f"✅ Scraped {len(lake_data)} lakes from Free Press Journal")
+        print(f" Scraped {len(lake_data)} lakes from Free Press Journal")
 
     except Exception as e:
         print(f"Scraping failed: {e} — using today's known BMC values")
@@ -87,7 +87,7 @@ def fetch_and_save():
             'last_updated': last_updated
         }).execute()
 
-    print(f"✅ Data saved to Supabase at {last_updated}")
+    print(f"Data saved to Supabase at {last_updated}")
 
 if __name__ == '__main__':
     fetch_and_save()
